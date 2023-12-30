@@ -30,6 +30,35 @@ function map_subject_labels() {
   return {};
 }
 
+function check_for_unattended_courses(grades) {
+  return Object.keys(grades).reduce((r, k) => {
+    return r.concat(grades[k]);
+  }, []).includes(0);
+}
+
+function check_if_subjects_passed(grades, nr_of_courses) {
+  let deficits = 0;
+  let intensive_course_deficits = 0;
+
+  for (let subject in grades) {
+    grades[subject].forEach((e) => {
+      if (e < 5) {
+        deficits++;
+
+        if (subject.includes('lk')) {
+          intensive_course_deficits++;
+        }
+      }
+    });
+  }
+
+  return intensive_course_deficits <= 3 && 
+    (
+      (nr_of_courses >= 28 && nr_of_courses <= 32 && deficits <= 6) ||
+      (nr_of_courses >= 33 && nr_of_courses <= 34 && deficits <= 7)
+    );
+}
+
 function get_highest_grade(grades, accredited_courses) {
   let highest_grade = 0;
   let grade_subject, grade_index;
@@ -54,17 +83,17 @@ function calculate(e) {
   e.preventDefault();
 
   let grades = collect_grades();
-  // todo: check if there are "0" grades
-  // todo: check for deficits
+  // todo: identify "Pflichtkurse"
+  // todo: check if there are "0" grades in the "Pflichtkurse"
+  console.log(check_for_unattended_courses(grades));
 
   let accredited_courses = select_accredited_courses();
 
-  // calculate point total
   let points = 0;
   let nr_of_courses = 0; // 8 (16) LK und mind. 20 und max. 26 GK
   for (let subject in accredited_courses) {
     accredited_courses[subject].forEach((e, i) => {
-      if (e && grades.hasOwnProperty(subject)) {
+      if (e && grades.hasOwnProperty(subject) && grades[subject][i] > 0) {
         let weighted_points = grades[subject][i];
         points += subject.includes('lk') ? weighted_points * 2 : weighted_points;
         nr_of_courses++;
@@ -94,7 +123,8 @@ function calculate(e) {
   // aufgabenfeld 3 (naturwissenschaftlich) mind. 2 aufeinanderfolgende semester
   // +4, +4, +4
 
-  let result_one = points / weighted_nr_of_courses;
+  check_if_subjects_passed(grades, nr_of_courses);
+  let result_one = Math.round((points / weighted_nr_of_courses) * 40);
 }
 
 document.querySelector('#form-button').addEventListener('click', calculate);
