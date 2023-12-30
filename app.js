@@ -30,11 +30,32 @@ function map_subject_labels() {
   return {};
 }
 
+function get_highest_grade(grades, accredited_courses) {
+  let highest_grade = 0;
+  let grade_subject, grade_index;
+
+  for (let subject in grades) {
+    if (!subject.includes('gk')) continue;
+
+    accredited_courses[subject].forEach((e, i) => {
+      if (!e && grades[subject][i] > highest_grade) {
+        highest_grade = grades[subject][i];
+        grade_subject = subject;
+        grade_index = i;
+      }
+    })
+  }
+
+  accredited_courses[grade_subject][grade_index] = 1;
+  return [highest_grade, accredited_courses];
+}
+
 function calculate(e) {
   e.preventDefault();
 
   let grades = collect_grades();
   // todo: check if there are "0" grades
+  // todo: check for deficits
 
   let accredited_courses = select_accredited_courses();
 
@@ -51,20 +72,29 @@ function calculate(e) {
     });
   }
 
+  // intensive course grades count double
+  let weighted_nr_of_courses = nr_of_courses + 8;
+
   while (nr_of_courses < 34) {
-    break;
+    let addtl_points;
+    let temp_average = points / weighted_nr_of_courses;
+    [addtl_points, accredited_courses] = get_highest_grade(grades, accredited_courses);
+
+    if (addtl_points > temp_average) {
+      points += addtl_points;
+      nr_of_courses++;
+      weighted_nr_of_courses++;
+    } else {
+      break;
+    }
   }
-  console.log(points, nr_of_courses);
 
   // deutsch, mathematik, fremdsprache (falls noch keine LKs)
   // aufgabenfeld 2 (gesellschaftlich) mind. 2 aufeinanderfolgende semester oder religion
   // aufgabenfeld 3 (naturwissenschaftlich) mind. 2 aufeinanderfolgende semester
   // +4, +4, +4
 
-
-  //nr_of_courses += 8; // intensive course grades are multiplied by two
-
-  let result_one = points / nr_of_courses;
+  let result_one = points / weighted_nr_of_courses;
 }
 
 document.querySelector('#form-button').addEventListener('click', calculate);
