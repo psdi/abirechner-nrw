@@ -2,13 +2,13 @@ function collect_grades() {
   return {
     lk1: [],
     lk2: [],
-    ab3: [],
-    ab4: [],
     gk1: [],
     gk2: [],
     gk3: [],
     gk4: [],
     gk5: [],
+    gk6: [],
+    gk7: [],
   };
 }
 
@@ -16,13 +16,13 @@ function select_accredited_courses() {
   return {
     lk1: [],
     lk2: [],
-    ab3: [],
-    ab4: [],
     gk1: [],
     gk2: [],
     gk3: [],
     gk4: [],
     gk5: [],
+    gk6: [],
+    gk7: [],
   };
 }
 
@@ -64,7 +64,7 @@ function get_highest_grade(grades, accredited_courses) {
   let grade_subject, grade_index;
 
   for (let subject in grades) {
-    if (!subject.includes('gk')) continue;
+    if (subject.includes('1') || subject.includes('2')) continue;
 
     accredited_courses[subject].forEach((e, i) => {
       if (!e && grades[subject][i] > highest_grade) {

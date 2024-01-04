@@ -1,13 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script src="helper.js" defer></script>
+  <script src="html-generator.js" defer type="module"></script>
   <script src="app.js" defer></script>
 </head>
 <body>
-  <div id="content">
-    <form id="grades-form">
-      <button id="form-button">Note berechnen</button>
-    </form>
-  </div>
+  <form id="grades-form">
+    <table>
+      <thead>
+        <tr>
+          <th colspan="2">Fach</th>
+          <th>Q1.1</th>
+          <th>Q1.2</th>
+          <th>Q2.1</th>
+          <th>Q2.2</th>
+        </tr>
+      </thead>
+      <tbody id="table-body-content"></tbody>
+    </table>
+    <button id="form-button">Note berechnen</button>
+  </form>
 </body>
 </html>
