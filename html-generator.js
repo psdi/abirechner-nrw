@@ -1,6 +1,7 @@
-import {subjects} from "./enums/SubjectEnum.js";
+import { subjects } from "./enums/SubjectEnum.js";
+import { toTitleCase } from "./helper.js";
 
-let gradeDropdownHtml = '<select><option selected disabled> - </option>{options}</select>'.replace(
+let gradeDropdownHtml = '<select class="grade-dropdown"><option selected disabled> - </option>{options}</select>'.replace(
   '{options}',
   (() => {
     let str = '';
@@ -11,14 +12,16 @@ let gradeDropdownHtml = '<select><option selected disabled> - </option>{options}
   })
 );
 
-let subjectDropdownHtml = '<select><option selected disabled>- Fach auswählen -</option>{subjects}</select>'.replace(
+let subjectDropdownHtml = '<select class="subject-dropdown">' +
+  '<option selected disabled>- Fach auswählen -</option>{subjects}</select>'.replace(
   '{subjects}',
   (() => {
     let str = '';
     Object.keys(subjects.bySubjectArea).reduce((r, k) => {
       return r.concat(subjects.bySubjectArea[k]);
     }, []).forEach((s) => {
-      str += `<option value="${s}">${toTitleCase(s)}</option>`;
+      const fstr = toTitleCase(s);
+      str += `<option value="${fstr}">${fstr}</option>`;
     })
     return str;
   })
@@ -27,7 +30,7 @@ let subjectDropdownHtml = '<select><option selected disabled>- Fach auswählen -
 let html = '';
 for (let item in subjects.labels) {
   html += `
-    <tr>
+    <tr data-label="${item}">
       <td>${subjects.labels[item]}</td>
       <td>${subjectDropdownHtml}</td>
       <td>${gradeDropdownHtml}</td>
