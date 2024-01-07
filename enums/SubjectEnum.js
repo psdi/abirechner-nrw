@@ -1,4 +1,11 @@
 export const subjects = Object.freeze({
+  areas: {
+    languageAndArts: 1,
+    socialScience: 2,
+    scientific: 3,
+    none: 4,
+  },
+
   bySubjectArea: {
     subjectAreaOne: [ 'deutsch', 'kunst', 'musik', ],
     subjectAreaOne_ForeignLanguages: [

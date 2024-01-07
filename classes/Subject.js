@@ -1,42 +1,69 @@
 import { toTitleCase } from "../helper.js";
 
 export class Subject {
-  constructor(grades, name, isCompulsory = false, isHalfCompulsory = false) {
+  constructor(grades, name, subjectArea, isIntensiveCourse = false, isCompulsory = false, isHalfCompulsory = false) {
     this.grades = grades;
-    this.name = name.toLowerCase(); // for consistency
+    this.name = name;
+    this.subjectArea = subjectArea;
+    this.isIntensiveCourse = isIntensiveCourse; // "Leistungskurs"
     this.isCompulsory = isCompulsory; // "Pflichtfach"
     this.isHalfCompulsory = isHalfCompulsory; // Aufgabenfeld 2, 3, Religion
   }
 
-  get grades() {
+  getGrades() {
     return this.grades;
   }
 
-  set grades(grades) {
+  setGrades(grades) {
     this.grades = grades;
   }
 
-  get name() {
+  getPointAverage() {
+    let coursesTaken = this.grades.slice(0).filter(g => g.getPoints() !== 0);
+    return coursesTaken.reduce((total, g) => total + g.getPoints(), 0) / coursesTaken.length;
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  getNameAsTitle() {
     return toTitleCase(this.name);
   }
 
-  set name(name) {
+  setName(name) {
     this.name = name;
   }
 
-  get isCompulsory() {
+  getSubjectArea() {
+    return this.subjectArea;
+  }
+
+  setSubjectArea(subjectArea) {
+    this.subjectArea = subjectArea;
+  }
+
+  getIsIntensiveCourse() {
+    return this.isIntensiveCourse;
+  }
+
+  setIsIntensiveCourse(isIntensiveCourse) {
+    this.isIntensiveCourse = isIntensiveCourse;
+  }
+
+  getIsCompulsory() {
     return Boolean(this.isCompulsory);
   }
 
-  set isCompulsory(isCompulsory) {
+  setIsCompulsory(isCompulsory) {
     this.isCompulsory = isCompulsory;
   }
 
-  get isHalfCompulsory() {
+  getIsHalfCompulsory() {
     return this.isHalfCompulsory;
   }
 
-  set isHalfCompulsory(isHalfCompulsory) {
+  setIsHalfCompulsory(isHalfCompulsory) {
     this.isHalfCompulsory = isHalfCompulsory;
   }
 }

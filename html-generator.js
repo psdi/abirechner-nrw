@@ -20,8 +20,7 @@ let subjectDropdownHtml = '<select class="subject-dropdown">' +
     Object.keys(subjects.bySubjectArea).reduce((r, k) => {
       return r.concat(subjects.bySubjectArea[k]);
     }, []).forEach((s) => {
-      const fstr = toTitleCase(s);
-      str += `<option value="${fstr}">${fstr}</option>`;
+      str += `<option value="${s}">${toTitleCase(s)}</option>`;
     })
     return str;
   })
@@ -29,16 +28,24 @@ let subjectDropdownHtml = '<select class="subject-dropdown">' +
 
 let html = '';
 for (let item in subjects.labels) {
+  const checked = item.includes('1') || item.includes('2');
+
   html += `
     <tr data-label="${item}">
       <td>${subjects.labels[item]}</td>
       <td>${subjectDropdownHtml}</td>
-      <td>${gradeDropdownHtml}</td>
-      <td>${gradeDropdownHtml}</td>
-      <td>${gradeDropdownHtml}</td>
-      <td>${gradeDropdownHtml}</td>
-    </tr>
   `;
+
+  for (let i = 0; i < 4; i++) {
+    html += `
+      <td>
+        ${gradeDropdownHtml}
+        <input type="checkbox" name="${item}-${i}" ${(() => checked ? 'checked' : '')()} />
+      </td>
+    `;
+  }
+
+  html += '</tr>'
 }
 
 document.querySelector('form tbody#table-body-content').innerHTML = html;
