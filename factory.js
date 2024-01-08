@@ -27,7 +27,7 @@ function buildCollection() {
     const subjectName = row.querySelector('select.subject-dropdown').value;
     const label = row.dataset.label;
     const isIntensiveCourse = label.includes('lk');
-    const isALevelSubject = label.includes('1') || label.includes('2');
+    const isCompulsory = label.includes('1') || label.includes('2') || ['deutsch', 'mathematik'].includes(subjectName);
 
     let gradePoints = [...row.querySelectorAll('select.grade-dropdown')]
       .map(function (select, i) { 
@@ -43,7 +43,7 @@ function buildCollection() {
       subjectName,
       getSubjectArea(subjectName),
       isIntensiveCourse,
-      isALevelSubject
+      isCompulsory
     );
   }
 

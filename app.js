@@ -1,52 +1,56 @@
 import { buildCollection } from "./factory.js";
 
-function check_for_unattended_courses(grades) {
-  return Object.keys(grades).reduce((r, k) => {
-    return r.concat(grades[k]);
+function checkForUnattendedCourses(gc) {
+  return Object.values(gc).reduce((r, s) => {
+    const gl = s.getIsCompulsory() ? s.getGrades().map((g) => g.getPoints()) : [];
+    return r.concat(gl);
   }, []).includes(0);
 }
 
-function check_if_subjects_passed(grades, nr_of_courses) {
+function checkIfSubjectsPassed(gc, nrOfCourses) {
   let deficits = 0;
-  let intensive_course_deficits = 0;
+  let intensiveCourseDeficits = 0;
 
-  for (let subject in grades) {
-    grades[subject].forEach((e) => {
-      if (e < 5) {
+  for (let subject of Object.values(gc)) {
+    subject.getGrades().forEach((g) => {
+      if (g.getPoints() < 5) {
         deficits++;
 
-        if (subject.includes('lk')) {
-          intensive_course_deficits++;
+        if (subject.getIsIntensiveCourse()) {
+          intensiveCourseDeficits++;
         }
       }
     });
   }
 
-  return intensive_course_deficits <= 3 && 
+  return intensiveCourseDeficits <= 3 && 
     (
-      (nr_of_courses >= 28 && nr_of_courses <= 32 && deficits <= 6) ||
-      (nr_of_courses >= 33 && nr_of_courses <= 34 && deficits <= 7)
+      (nrOfCourses >= 28 && nrOfCourses <= 32 && deficits <= 6) ||
+      (nrOfCourses >= 33 && nrOfCourses <= 34 && deficits <= 7)
     );
 }
 
-function get_highest_grade(grades, accredited_courses) {
-  let highest_grade = 0;
-  let grade_subject, grade_index;
+function getHighestGrade(grades) {
+  let highestGrade = 0;
+  let gradeSubject, gradeIndex;
 
-  for (let subject in grades) {
-    if (subject.includes('1') || subject.includes('2')) continue;
+  for (let label in grades) {
+    const subject = grades[label];
+    if (subject.getIsCompulsory()) continue;
 
-    accredited_courses[subject].forEach((e, i) => {
-      if (!e && grades[subject][i] > highest_grade) {
-        highest_grade = grades[subject][i];
-        grade_subject = subject;
-        grade_index = i;
+    subject.getGrades().forEach(function(g, i) {
+      if (!g.getIsAccreditable() && !g.getIsAdditionalCourse() && g.getPoints() > highestGrade) {
+        highestGrade = g.getPoints();
+        gradeSubject = label;
+        gradeIndex = i;
       }
-    })
+    });
+  }
+  if (gradeSubject) {
+    grades[gradeSubject].getGrades()[gradeIndex].setIsAdditionalCourse(true);
   }
 
-  accredited_courses[grade_subject][grade_index] = 1;
-  return [highest_grade, accredited_courses];
+  return highestGrade;
 }
 
 function calculate(e) {
@@ -67,6 +71,22 @@ function calculate(e) {
       }
     });
   }
+
+  while (nrOfCourses < 34) {
+    let tempAverage = points / weightedNrOfCourses;
+    let addtlPoints = getHighestGrade(gradesCollection);
+  
+    if (addtlPoints > tempAverage) {
+      points += addtlPoints;
+      nrOfCourses++;
+      weightedNrOfCourses++;
+    } else {
+      break;
+    }
+  }
+
+  const hasSatisfactoryGrades = checkIfSubjectsPassed(gradesCollection, nrOfCourses);
+  const hasUnattendedCourses = checkForUnattendedCourses(gradesCollection);
 
   const firstResult = Math.round((points / weightedNrOfCourses) * 40);
 }
