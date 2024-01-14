@@ -22,7 +22,7 @@ function getSubjectArea(name) {
 
 function buildCollection() {
   let grades = {};
-  const gradeRows = document.querySelector('tbody').getElementsByTagName('tr');
+  const gradeRows = document.querySelector('tbody#table-body-content').getElementsByTagName('tr');
   for (let row of gradeRows) {
     const subjectName = row.querySelector('select.subject-dropdown').value;
     const label = row.dataset.label;
@@ -50,6 +50,29 @@ function buildCollection() {
   return grades;
 }
 
+/**
+ * Extracts entered grades in a-level form
+ * @return {[object]}      Object with five key-value pairs; value is a maximum of two numbers
+ *                         (first is the written grade; second is the oral grade, if available)
+ */
+function buildResults() {
+  let results = {};
+  const resultRows = document.querySelector('tbody#results-form-content').getElementsByTagName('tr');
+  for (let row of resultRows) {
+    const label = row.dataset.label;
+    const writtenGrade = row.querySelector('td.written-exam select.grade-dropdown');
+    const oralGrade = row.querySelector('td.oral-exam select.grade-dropdown');
+
+    results[label] = [
+      writtenGrade !== null && !isNaN(writtenGrade.value) ? Number(writtenGrade.value) : undefined,
+      oralGrade !== null && !isNaN(oralGrade.value) ? Number(oralGrade.value) : undefined,
+    ];
+  }
+
+  return results;
+}
+
 export {
   buildCollection,
+  buildResults,
 }

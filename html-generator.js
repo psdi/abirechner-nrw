@@ -5,7 +5,7 @@ let gradeDropdownHtml = '<select class="grade-dropdown"><option selected disable
   '{options}',
   (() => {
     let str = '';
-    for (let i = 15; i > 0; i--) {
+    for (let i = 15; i >= 0; i--) {
       str += `<option value="${i}">${i}</option>`;
     }
     return str;
@@ -48,4 +48,15 @@ for (let item in subjects.labels) {
   html += '</tr>'
 }
 
+let resultsHtml = '';
+for (let i = 1; i <= 5; i++) {
+  resultsHtml += `
+    <tr data-label="ab${i}">
+      <td class="written-exam">${(() => i < 4 ? gradeDropdownHtml : (i < 5 ? '&nbsp;' : 'BLL'))()}</td>
+      <td class="oral-exam">${gradeDropdownHtml}</td>
+    </tr>
+  `;
+}
+
 document.querySelector('form tbody#table-body-content').innerHTML = html;
+document.querySelector('form tbody#results-form-content').innerHTML = resultsHtml;

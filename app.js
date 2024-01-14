@@ -1,4 +1,4 @@
-import { buildCollection } from "./factory.js";
+import { buildCollection, buildResults } from "./factory.js";
 
 function checkForUnattendedCourses(gc) {
   return Object.values(gc).reduce((r, s) => {
@@ -56,6 +56,7 @@ function getHighestGrade(grades) {
 function calculate(e) {
   e.preventDefault();
 
+  // --- Ergebnis 1 ---
   let gradesCollection = buildCollection();
 
   let points = 0;
@@ -89,6 +90,28 @@ function calculate(e) {
   const hasUnattendedCourses = checkForUnattendedCourses(gradesCollection);
 
   const firstResult = Math.round((points / weightedNrOfCourses) * 40);
+
+  // --- Ergebnis 2 ---
+  let results = buildResults();
+  const multiplicator = results.hasOwnProperty('ab5') && results['ab5'][1] !== undefined ? 4 : 5;
+  let groupTwoPoints = 0;
+  for (const label in results) {
+    const exams = results[label];
+    let examPoints = 0;
+
+    if (exams[0] !== undefined && exams[1] !== undefined) {
+      examPoints = (exams[0] * 2 + exams[1]) / 3;
+    } else if (exams[0] !== undefined) {
+      examPoints = exams[0];
+    } else if (exams[1] !== undefined) {
+      examPoints = exams[1];
+    }
+
+    groupTwoPoints += examPoints;
+  }
+
+  const secondResult = Math.round(groupTwoPoints * multiplicator);
+  const grade = (17 / 3) - ((firstResult + secondResult) / 180);
 }
 
 document.querySelector('#form-button').addEventListener('click', calculate);
