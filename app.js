@@ -1,4 +1,5 @@
 import { buildCollection, buildResults } from "./factory.js";
+import { emitResults, emitError } from "./emitter.js";
 
 function checkForUnattendedCourses(gc) {
   return Object.values(gc).reduce((r, s) => {
@@ -7,27 +8,23 @@ function checkForUnattendedCourses(gc) {
   }, []).includes(0);
 }
 
-function checkIfSubjectsPassed(gc, nrOfCourses) {
+function getNumberOfDeficits(gc) {
   let deficits = 0;
   let intensiveCourseDeficits = 0;
 
   for (let subject of Object.values(gc)) {
     subject.getGrades().forEach((g) => {
-      if (g.getPoints() < 5) {
+      if (g.getIsAccreditable() && g.getPoints() < 5) {
         deficits++;
-
-        if (subject.getIsIntensiveCourse()) {
-          intensiveCourseDeficits++;
-        }
+        intensiveCourseDeficits += subject.getIsIntensiveCourse() ? 1 : 0;
       }
-    });
+    })
   }
 
-  return intensiveCourseDeficits <= 3 && 
-    (
-      (nrOfCourses >= 28 && nrOfCourses <= 32 && deficits <= 6) ||
-      (nrOfCourses >= 33 && nrOfCourses <= 34 && deficits <= 7)
-    );
+  return {
+    total: deficits,
+    intensive: intensiveCourseDeficits,
+  };
 }
 
 function getHighestGrade(grades) {
@@ -86,7 +83,12 @@ function calculate(e) {
     }
   }
 
-  const hasSatisfactoryGrades = checkIfSubjectsPassed(gradesCollection, nrOfCourses);
+  const deficits = getNumberOfDeficits(gradesCollection);
+  const hasSatisfactoryGrades = deficits.intensive <= 3 && 
+    (
+      (nrOfCourses >= 28 && nrOfCourses <= 32 && deficits.total <= 6) ||
+      (nrOfCourses >= 33 && nrOfCourses <= 34 && deficits.total <= 7)
+    );
   const hasUnattendedCourses = checkForUnattendedCourses(gradesCollection);
 
   const firstResult = Math.round((points / weightedNrOfCourses) * 40);
@@ -112,6 +114,7 @@ function calculate(e) {
 
   const secondResult = Math.round(groupTwoPoints * multiplicator);
   const grade = (17 / 3) - ((firstResult + secondResult) / 180);
+  emitResults(firstResult, nrOfCourses, secondResult, grade, deficits.total);
 }
 
 document.querySelector('#form-button').addEventListener('click', calculate);
